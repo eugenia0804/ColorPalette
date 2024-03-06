@@ -112,11 +112,11 @@ quality_of_palette_detection = int(get_user_input("Enter quality of palette dete
 
 
 for folder in folder_list:
-    folder = f'ColorPalette/{folder}'
+    folder_path = f'ColorPalette/{folder}'
     print("start processing folder: " + folder)
-    colors_8 = generate_palette(folder, color_count_for_each_image, quality_of_palette_detection)
+    colors_8 = generate_palette(folder_path, color_count_for_each_image, quality_of_palette_detection)
     print("palette v2 generated: " + str(colors_8))
     colors_4 = get_representative_colors(colors_8, 4)
     print("palette v2 generated: " + str(colors_4))
-    generate_color_gradient(colors_4, f"palettes/{folder}.png")
+    generate_color_gradient(colors_4, f"ColorPalette/palettes/{folder}.png")
     print("image generated and saved!")
