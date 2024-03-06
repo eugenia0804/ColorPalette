@@ -6,6 +6,7 @@ from itertools import combinations
 import numpy as np
 from PIL import Image, ImageDraw
 
+
 def generate_palette(folder_path, color_count_for_each_image, quality_of_palette_detection):
     files = os.listdir(folder_path)
     images = [file for file in files if file.endswith(('jpg', 'jpeg', 'png'))]
@@ -22,21 +23,6 @@ def generate_palette(folder_path, color_count_for_each_image, quality_of_palette
 
     return palette
 
-def get_representative_colors0(rgb_tuples, num_colors):
-    # Convert RGB tuples to numpy array
-    rgb_array = np.array(rgb_tuples)
-
-    # Perform K-means clustering
-    kmeans = KMeans(n_clusters=num_colors, random_state=0)
-    kmeans.fit(rgb_array)
-
-    # Get the representative colors (cluster centroids)
-    representative_colors = kmeans.cluster_centers_.astype(int)
-
-    # Convert representative colors to RGB tuples
-    representative_colors_rgb = [tuple(color) for color in representative_colors]
-
-    return representative_colors_rgb
 
 def get_representative_colors(rgb_tuples, num_colors):
     # Convert RGB tuples to numpy array
@@ -75,61 +61,6 @@ def get_representative_colors(rgb_tuples, num_colors):
     return representative_colors_rgb
 
 
-def get_representative_colors1(rgb_tuples, num_colors):
-    # Convert RGB tuples to numpy array
-    rgb_array = np.array(rgb_tuples)
-
-    # Calculate luminance for each color
-    luminance = 0.2126 * rgb_array[:, 0] + 0.7152 * rgb_array[:, 1] + 0.0722 * rgb_array[:, 2]
-
-    # Sort colors based on luminance
-    sorted_indices = np.argsort(luminance)
-
-    # Select the most contrasting colors
-    step = len(sorted_indices) // num_colors
-    representative_indices = [sorted_indices[i * step] for i in range(num_colors)]
-
-    # Get the representative colors
-    representative_colors = rgb_array[representative_indices]
-
-    # Convert representative colors to RGB tuples
-    representative_colors_rgb = [tuple(color) for color in representative_colors]
-
-    return representative_colors_rgb
-
-def color_distance(color1, color2):
-    """
-    Compute the Euclidean distance between two colors in the Lab color space.
-    """
-    r1, g1, b1 = color1
-    r2, g2, b2 = color2
-    h1, l1, s1 = rgb_to_hls(r1 / 255, g1 / 255, b1 / 255)
-    h2, l2, s2 = rgb_to_hls(r2 / 255, g2 / 255, b2 / 255)
-    dh = abs(h1 - h2)
-    dl = abs(l1 - l2)
-    ds = abs(s1 - s2)
-    return dh + dl + ds
-
-
-def get_representative_colors2(rgb_tuples, num_colors):
-    # Convert RGB tuples to numpy array
-    rgb_array = np.array(rgb_tuples)
-
-    # Calculate pairwise distances between colors
-    distances = np.zeros((len(rgb_array), len(rgb_array)))
-    for i, j in combinations(range(len(rgb_array)), 2):
-        distances[i, j] = distances[j, i] = color_distance(rgb_array[i], rgb_array[j])
-
-    # Find the most contrasting colors
-    contrasting_colors = []
-    for _ in range(num_colors):
-        max_distance = np.unravel_index(np.argmax(distances), distances.shape)
-        contrasting_colors.append(rgb_array[max_distance[0]])
-        distances[max_distance[0], :] = distances[:, max_distance[0]] = 0
-
-    return contrasting_colors
-
-
 def colorFader(c1, c2, mix=0):
     """
     Fade (linear interpolate) from color c1 (at mix=0) to c2 (at mix=1).
@@ -137,6 +68,7 @@ def colorFader(c1, c2, mix=0):
     c1 = np.array(c1)
     c2 = np.array(c2)
     return tuple((1 - mix) * c1 + mix * c2)
+
 
 def generate_color_gradient(colors, filepath, n=500):
     # Define image size and create a new blank image
@@ -159,15 +91,23 @@ def generate_color_gradient(colors, filepath, n=500):
     gradient_image.save(filepath)
 
 
+def get_folder_list():
+    current_directory = os.getcwd()
+    folders = [folder for folder in os.listdir(current_directory) if os.path.isdir(folder) and folder != 'palettes' and folder != '.git']
+    return folders
 
+def get_user_input(prompt, default):
+    user_input = input(prompt + f" (default: {default}): ")
+    if user_input.strip() == "":
+        return default
+    return user_input
 
 
 
 # Example usage:
-folder_list = ['north-beach', 'mission']
-color_count_for_each_image = 20
-quality_of_palette_detection = 30
-
+folder_list = get_folder_list()
+color_count_for_each_image = int(get_user_input("Enter the number of colors detected for each image", 20))
+quality_of_palette_detection = int(get_user_input("Enter quality of palette detection", 30))
 
 
 for folder in folder_list:
