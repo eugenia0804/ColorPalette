@@ -91,11 +91,6 @@ def generate_color_gradient(colors, filepath, n=500):
     gradient_image.save(filepath)
 
 
-def get_folder_list():
-    current_directory = os.getcwd()
-    folders = [folder for folder in os.listdir(current_directory) if os.path.isdir(folder) and folder != ('palettes' or '.git' or '.config')]
-    return folders
-
 def get_user_input(prompt, default):
     user_input = input(prompt + f" (default: {default}): ")
     if user_input.strip() == "":
@@ -105,7 +100,13 @@ def get_user_input(prompt, default):
 
 
 # Example usage:
-folder_list = get_folder_list()
+folder_list = []
+while True:
+    folder_name = input("Enter folder name (hit Enter to skip): ")
+    if folder_name:
+        folder_list.append(folder_name)
+    else:
+        break
 color_count_for_each_image = int(get_user_input("Enter the number of colors detected for each image", 20))
 quality_of_palette_detection = int(get_user_input("Enter quality of palette detection", 30))
 
