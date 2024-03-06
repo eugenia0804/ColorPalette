@@ -93,7 +93,7 @@ def generate_color_gradient(colors, filepath, n=500):
 
 def get_folder_list():
     current_directory = os.getcwd()
-    folders = [folder for folder in os.listdir(current_directory) if os.path.isdir(folder) and folder != 'palettes' and folder != '.git']
+    folders = [folder for folder in os.listdir(current_directory) if os.path.isdir(folder) and folder != ('palettes' or '.git' or '.config')]
     return folders
 
 def get_user_input(prompt, default):
@@ -111,6 +111,7 @@ quality_of_palette_detection = int(get_user_input("Enter quality of palette dete
 
 
 for folder in folder_list:
+    folder = f'ColorPalette/{folder}'
     print("start processing folder: " + folder)
     colors_8 = generate_palette(folder, color_count_for_each_image, quality_of_palette_detection)
     print("palette v2 generated: " + str(colors_8))
